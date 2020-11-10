@@ -7,7 +7,7 @@ import Table from "react-bootstrap/Table";
 const Help = () => {
   const [Sucursal, setSucursal] = useState([]);
   const getSucursal = async () => {
-    firestore.collection("Sucursal").where('ganancia','>=',"30000").onSnapshot((querySnapshot) => {
+    firestore.collection("Sucursal").where('ganancia','>=',30000).onSnapshot((querySnapshot) => {
       const docs = [];
       querySnapshot.forEach((doc) => {
         docs.push({ ...doc.data(), id: doc.id });
@@ -40,8 +40,8 @@ const Help = () => {
                 {Sucursal.map((Employ) => (
                   <tr key={Employ.id}>
                     <td>{Employ.nombre}</td>
-                    <td>$ {Employ.ganancia}</td>
-                    <td>{Employ.empleado}</td>
+                    <td>$ {parseFloat(Employ.ganancia).toFixed(2)}</td>
+                    <td>{parseInt(Employ.empleado)}</td>
                     <td>Excelente Trabajo</td>
                   </tr>
                 ))}
