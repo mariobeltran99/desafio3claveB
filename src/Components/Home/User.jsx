@@ -18,7 +18,7 @@ const User = () => {
   }, []);
   const cantidadSucursal1 = Sucursal.filter(sucur => sucur.ganancia < 30000);
   const cantidadSucursal2 = Sucursal.filter(sucur => sucur.ganancia >= 30000);
-  const ventTot = Sucursal.reduce(function(prev, next){ return parseFloat(prev) + parseFloat(next.ganancia);},0);
+  const ventTot = Sucursal.reduce(function(prev, next){ return parseFloat(parseFloat(prev) + parseFloat(next.ganancia)).toFixed(2);},0);
   return (
     <React.Fragment>
       <Container className="space">
@@ -26,13 +26,13 @@ const User = () => {
         <br />
         <Row className="justify-content-center space">
           <Col sm={12} xl={12} md={12} lg={12} xs={12}>
-              <h1>Sucursales que obtienen ganancias entre $1,000 y $30,000 son : {cantidadSucursal1.length}</h1> 
+              <h1>Sucursales que obtienen ganancias entre $1,000.00 y $30,000.00 son : {cantidadSucursal1.length}</h1> 
               <br/>
               {cantidadSucursal1.map((sucur) => (
                 <Card className="space">
                   <Card.Body key={sucur.id}>
                     <p><strong>Nombre de Sucursal:</strong> {sucur.nombre} - (Buen Trabajo)</p>
-                    <p><strong>Ganancia: </strong> $ {sucur.ganancia}</p>
+                    <p><strong>Ganancia: </strong> $ {parseFloat(sucur.ganancia).toFixed(2)}</p>
                     <p><strong>Cantidad de Empleados: </strong> {sucur.empleado}</p>
                   </Card.Body>
                 </Card> 
@@ -41,13 +41,13 @@ const User = () => {
         </Row>
         <Row className="justify-content-center space">
           <Col sm={12} xl={12} md={12} lg={12} xs={12}>
-              <h1>Sucursales que obtienen ganancias mayores de $30,000 son : {cantidadSucursal2.length}</h1> 
+              <h1>Sucursales que obtienen ganancias mayores de $30,000.00 son : {cantidadSucursal2.length}</h1> 
               <br/>
               {cantidadSucursal2.map((sucur) => (
                 <Card className="space">
                   <Card.Body key={sucur.id}>
                     <p><strong>Nombre de Sucursal:</strong> {sucur.nombre} - (Excelente Trabajo)</p>
-                    <p><strong>Ganancia: </strong> $ {sucur.ganancia}</p>
+                    <p><strong>Ganancia: </strong> $ {parseFloat(sucur.ganancia).toFixed(2)}</p>
                     <p><strong>Cantidad de Empleados: </strong> {sucur.empleado}</p>
                   </Card.Body>
                 </Card> 
@@ -59,6 +59,7 @@ const User = () => {
               <h1>Ganancia Total de la Empresa: $ {ventTot}</h1>  
           </Col>
         </Row>
+        <br/>
       </Container>
     </React.Fragment>
   );

@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import { auth } from "../firebase";
 import { Link } from "@reach/router";
+import { Navbar } from "react-bootstrap";
+import Container from "react-bootstrap/Container";
+import { Col, Row, Card, Form, Toast } from "react-bootstrap";
+import Button from "react-bootstrap/Button";
 
 const PasswordReset = () => {
   const [email, setEmail] = useState("");
   const [emailHasBeenSent, setEmailHasBeenSent] = useState(false);
   const [error, setError] = useState(null);
+  const [show, setShow] = useState(false);
 
-  const onChangeHandler = event => {
+  const onChangeHandler = (event) => {
     const { name, value } = event.currentTarget;
 
     if (name === "userEmail") {
@@ -15,68 +20,81 @@ const PasswordReset = () => {
     }
   };
 
-  const sendResetEmail = event => {
+  const sendResetEmail = (event) => {
     event.preventDefault();
     auth
       .sendPasswordResetEmail(email)
       .then(() => {
         setEmailHasBeenSent(true);
-        setTimeout(() => { setEmailHasBeenSent(false) }, 3000);
       })
       .catch(() => {
-        setError("Error resetting password");
+        setError("Error al recuperar la contraseña");
+        setShow(true);
       });
   };
   return (
     <div>
-      <nav class="navbar navbar-inverse">
-        <ul class="nav navbar-nav">
-        </ul>
-      </nav>
-      <div className="mt-8">
-        <h1 className="text-xl text-center font-bold mb-3">
-          Cambiar contraseña
-      </h1>
-        <div className="border border-blue-300 mx-auto w-11/12 md:w-2/4 rounded py-8 px-4 md:px-8">
-          <form action="">
-            {emailHasBeenSent && (
-              <div className="py-3 bg-green-400 w-full text-white text-center mb-3">
-                Por favor revisar su correo electronico
-              </div>
-            )}
-            {error !== null && (
-              <div className="py-3 bg-red-600 w-full text-white text-center mb-3">
-                {error}
-              </div>
-            )}
-            <label htmlFor="userEmail" className="w-full block">
-              Correo:
-          </label>
-            <div className="form-group">
-              <input type="email" className="form-control"
-                name="userEmail"
-                id="userEmail"
-                value={email}
-                placeholder="Ingresar Correo"
-                onChange={(event) => onChangeHandler(event)} />
-            </div>
-            <button
-              className="w-full bg-blue-400 text-white py-3"
-              onClick={event => {
-                sendResetEmail(event);
-              }}
-            ><i class="fa fa-save"></i> Guardar
-          </button>
-          </form>
-
-          <Link
-            to="/"
-            className="my-2 text-blue-700 hover:text-blue-800 text-center block"
-          >
-            &larr; Regresar
-        </Link>
-        </div>
+      <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+        <Navbar.Brand style={{ fontSize: "1.5em" }}>GameShop</Navbar.Brand>
+      </Navbar>
+      <div style={{ position: "absolute", top: "40", right: "0" }}>
+        <Toast onClose={() => setEmailHasBeenSent(false)} show={emailHasBeenSent} delay={6000} autohide className="fotSize">
+          <Toast.Header>
+            <strong className="mr-auto">Correo Enviado</strong>
+          </Toast.Header>
+          <Toast.Body>Revise su buzón de entrada</Toast.Body>
+        </Toast>
+        <Toast onClose={() => setShow(false)} show={show} delay={6000} autohide className="fotSize">
+          <Toast.Header>
+            <strong className="mr-auto">Error</strong>
+          </Toast.Header>
+          <Toast.Body>{error}</Toast.Body>
+        </Toast>
       </div>
+      <Container className="space">
+        <Row className="justify-content-center">
+          <Col sm={12} xl={6} md={6} lg={6} xs={12}>
+            <Card>
+              <Card.Body>
+                <h1 className="title">Recuperar Contraseña</h1>
+                <br />
+                <Form>
+                  <Form.Row>
+                    <Form.Control
+                      type="email"
+                      className="fotSize"
+                      placeholder="Correo Electrónico"
+                      name="userEmail"
+                      id="userEmail"
+                      autoComplete="off"
+                      onChange={(event) => onChangeHandler(event)}
+                    />
+                  </Form.Row>
+                  <br />
+                  <Button
+                    className="fotSize"
+                    variant="outline-primary"
+                    block
+                    onClick={(event) => {
+                      sendResetEmail(event);
+                    }}
+                  >
+                    Enviar Correo Electrónico
+                  </Button>{" "}
+                </Form>
+                <br />
+                <Link to="/">
+                  <Button className="fotSize" variant="outline-info" block>
+                    Regresar
+                  </Button>{" "}
+                </Link>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+        <br />
+        <br />
+      </Container>
     </div>
   );
 };

@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { firestore } from "../firebase";
-import { Card, Col, Form } from "react-bootstrap";
+import { Card, Form, InputGroup, Toast } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
-//import { toast } from "react-toastify";
 
 const AlumnosForm = (props) => {
-
   const initialStateValues = {
     nombre: "",
     ganancia: 1000,
@@ -14,15 +12,20 @@ const AlumnosForm = (props) => {
 
   const [values, setValues] = useState(initialStateValues);
   const [Sucursal, setSucursal] = useState([]);
+  const [show, setShow] = useState(false);
+  const [warnings, setWarnings] = useState(null);
 
   const getSucursal = async () => {
-    firestore.collection("Sucursal").where('empleado','<',"20").onSnapshot((querySnapshot) => {
-      const docs = [];
-      querySnapshot.forEach((doc) => {
-        docs.push({ ...doc.data(), id: doc.id });
+    firestore
+      .collection("Sucursal")
+      .where("empleado", "<", "20")
+      .onSnapshot((querySnapshot) => {
+        const docs = [];
+        querySnapshot.forEach((doc) => {
+          docs.push({ ...doc.data(), id: doc.id });
+        });
+        setSucursal(docs);
       });
-      setSucursal(docs);
-    });
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -31,25 +34,48 @@ const AlumnosForm = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const reg = new RegExp('^\\s');
-    if(values.nombre === null || reg.test(values.nombre) === true || values.nombre.trim() === "" ){
-      alert("Campo nombre vacío");
-    }else if (values.ganancia < 1000){
-      alert("Mínimos tiene que ser $1000.00")
-    }else if (values.empleado < 10 ){
-      alert("Tiene que ser mínimo 10 empleados");
-    }else{
-      if(values.empleado > 20){
-        if(Sucursal.length === 0){
-          alert("Todas las sucursales están llenas de empleados para transferir");
-        }else{
+    const reg = new RegExp("^\\s");
+    if (
+      values.nombre === null ||
+      reg.test(values.nombre) === true ||
+      values.nombre.trim() === ""
+    ) {
+      setWarnings("Campo nombre vacío");
+      setShow(true);
+      setTimeout(() => {
+        setWarnings(null);
+      }, 6000);
+    } else if (values.ganancia < 1000 || values.ganancia > 50000) {
+      setWarnings("Tiene que ser entre $1000.00 a $50,000.00");
+      setShow(true);
+      setTimeout(() => {
+        setWarnings(null);
+      }, 6000);
+    } else if (values.empleado < 10 || values.empleado > 40) {
+      setWarnings("Tiene que ser entre 10 a 40 empleados");
+      setShow(true);
+      setTimeout(() => {
+        setWarnings(null);
+      }, 6000);
+    } else {
+      if (values.empleado > 20) {
+        if (Sucursal.length === 0) {
+          setWarnings(
+            "Todas las sucursales están llenas de empleados para transferir"
+          );
+          setShow(true);
+          setTimeout(() => {
+            setWarnings(null);
+          }, 6000);
+        } else {
           let restantes = values.empleado - 20;
           values.empleado = 20;
           console.log(restantes, values.empleado);
           console.log(Sucursal);
-
         }
-      }else if( values.empleado <= 20){
+      } else if (values.empleado <= 20) {
+        values.empleado = parseInt(values.empleado);
+        values.ganancia = parseFloat(values.ganancia);
         props.addOrEditSucursal(values);
         setValues({ ...initialStateValues });
       }
@@ -83,46 +109,70 @@ const AlumnosForm = (props) => {
         <br />
         <Form>
           <Form.Row>
-            <Col>
+            <InputGroup className="mb-3">
+              <InputGroup.Prepend>
+                <InputGroup.Text id="basic-addon1" className="fotSize">
+                  Nombre de Sucursal
+                </InputGroup.Text>
+              </InputGroup.Prepend>
               <Form.Control
                 type="text"
-                placeholder="Nombre de Sucursal"
+                className="fotSize"
+                placeholder="GameStack"
                 name="nombre"
                 autoComplete="off"
                 onChange={handleInputChange}
                 value={values.nombre}
               />
-            </Col>
-            <Col>
+            </InputGroup>
+          </Form.Row>
+          <br />
+          <Form.Row>
+            <InputGroup className="mb-3">
+              <InputGroup.Prepend>
+                <InputGroup.Text id="basic-addon1" className="fotSize">
+                  Gananacias ($)
+                </InputGroup.Text>
+              </InputGroup.Prepend>
               <Form.Control
                 type="number"
+                className="fotSize"
                 min="1000.00"
+                max="50000.00"
+                step="1.00"
                 placeholder="Ganancia"
                 name="ganancia"
                 autoComplete="off"
                 onChange={handleInputChange}
-                value={values.ganancia}
+                value={parseFloat(values.ganancia)}
               />
-            </Col>
+            </InputGroup>
           </Form.Row>
           <br />
           <Form.Row>
-            <Col>
+            <InputGroup className="mb-3">
+              <InputGroup.Prepend>
+                <InputGroup.Text id="basic-addon1" className="fotSize">
+                  Cantidad de Empleados
+                </InputGroup.Text>
+              </InputGroup.Prepend>
               <Form.Control
                 type="number"
+                className="fotSize"
                 min="10"
-                max="20"
+                max="40"
                 placeholder="Empleados"
                 name="empleado"
                 autoComplete="off"
                 onChange={handleInputChange}
-                value={values.empleado}
+                value={parseInt(values.empleado)}
               />
-            </Col>
+            </InputGroup>
           </Form.Row>
           <br />
           <Button
             variant="outline-primary"
+            className="fotSize"
             block
             onClick={(event) => {
               handleSubmit(event);
@@ -131,6 +181,19 @@ const AlumnosForm = (props) => {
             {props.currentId === "" ? "Guardar" : "Actualizar"}
           </Button>{" "}
         </Form>
+        <br />
+        <Toast
+          onClose={() => setShow(false)}
+          show={show}
+          delay={6000}
+          autohide
+          className="fotSize warnings"
+        >
+          <Toast.Header>
+            <strong className="mr-auto">Advertencia</strong>
+          </Toast.Header>
+          <Toast.Body>{warnings}</Toast.Body>
+        </Toast>
       </Card.Body>
     </Card>
   );

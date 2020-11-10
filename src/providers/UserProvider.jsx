@@ -23,12 +23,9 @@ class UserProvider extends Component {
   contraseña. el triggered solo se activa al iniciar o cerrar sesión.
   */
   componentDidMount = async () => {
-    console.log(" UserProvider componentDidMount : ");
     auth.onAuthStateChanged(async userAuth => {
-      const user = await generateUserDocument(userAuth);
-      console.log(" Usuario triggered componentDidMount : " + user);   
-      this.setState({ user });      
-      console.log("++++++++++++++++++++++++++++++++++");    
+      const user = await generateUserDocument(userAuth);  
+      this.setState({ user });    
     });
   };
 
@@ -38,7 +35,6 @@ class UserProvider extends Component {
 
   render() {
     const { user } = this.state;
-    console.log(" render -> Usuario UserProvider : " + user);
     return (
       // Usa un Provider para pasar el user actual al árbol de abajo.
       // Cualquier componente puede leerlo, sin importar qué tan profundo se encuentre.
