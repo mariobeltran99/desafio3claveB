@@ -18,7 +18,7 @@ const AlumnosForm = (props) => {
   const getSucursal = async () => {
     firestore
       .collection("Sucursal")
-      .where("empleado", "<", "20")
+      .where("empleado", "<", 20)
       .onSnapshot((querySnapshot) => {
         const docs = [];
         querySnapshot.forEach((doc) => {
@@ -26,6 +26,9 @@ const AlumnosForm = (props) => {
         });
         setSucursal(docs);
       });
+  };
+  const uptodate = async (id, SucursalObj) => {
+    await firestore.collection("Sucursal").doc(id).update(SucursalObj);
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -70,8 +73,53 @@ const AlumnosForm = (props) => {
         } else {
           let restantes = values.empleado - 20;
           values.empleado = 20;
-          console.log(restantes, values.empleado);
-          console.log(Sucursal);
+          const cantidadEmpledosTotales = Sucursal.reduce(function (
+            prev,
+            next
+          ) {
+            return parseInt(prev) + parseInt(next.empleado);
+          },
+          0);
+          let cantidadEspaciosDisponibles =
+            Sucursal.length * 20 - cantidadEmpledosTotales;
+          if (restantes <= cantidadEspaciosDisponibles) {
+            for (let i = 50; i !== 0; i--) {
+              if (restantes === 0) {
+                break;
+              } else {
+                for (let j = 0; j < Sucursal.length; j++) {
+                  if(Sucursal[j].empleado < 20){
+                    if (restantes === 0) {
+                      break;
+                    } else {
+                      let emp = parseInt(Sucursal[j].empleado) + 1;
+                      Sucursal[j].empleado = emp;
+                      const id = Sucursal[j].id;
+                      const obj = {
+                        empleado: emp,
+                      };
+                      uptodate(id, obj);
+                      restantes--; 
+                    }
+                  }else{
+                    continue;
+                  }
+                }
+              }
+            }
+            values.empleado = parseInt(values.empleado);
+            values.ganancia = parseFloat(values.ganancia);
+            props.addOrEditSucursal(values);
+            setValues({ ...initialStateValues });
+          } else {
+            setWarnings(
+              "No hay suficiente vacantes para todas las sucursales, por favor disminuir el número de empleados"
+            );
+            setShow(true);
+            setTimeout(() => {
+              setWarnings(null);
+            }, 6000);
+          }
         }
       } else if (values.empleado <= 20) {
         values.empleado = parseInt(values.empleado);

@@ -1,6 +1,18 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
+npm start
+
+## Deploy on Hosting
+El proyecto en ejecución [aquí](https://desafio3b.web.app/)
+
+## Integrantes del Proyecto
+Mario Josué Beltrán García  BG171969
+##
+Andrés Eduardo Molina Moz MM161405
+##
+Oscar Anibal Carranza Valiente CV181237
+
 
 In the project directory, you can run:
 
